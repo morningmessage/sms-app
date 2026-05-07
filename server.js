@@ -167,3 +167,6 @@ setInterval(checkScheduledMessages, 60000);
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+app.get("/", (req, res) => {
+  res.send("SMS App is live 🚀");
+});
