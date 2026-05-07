@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SMS Calendar App</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6fb;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .topbar {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px;
+    }
+
+    button {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .day {
+      background: white;
+      border-radius: 8px;
+      min-height: 120px;
+      padding: 6px;
+    }
+
+    .header {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .msg {
+      background: #e0e7ff;
+      padding: 4px;
+      margin: 3px 0;
+      border-radius: 5px;
+      font-size: 11px;
+    }
+
+    .date-num {
+      font-weight: bold;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .time {
+      font-size: 10px;
+      color: gray;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>SMS Calendar</h1>
+
+<div class="topbar">
+  <input id="message" placeholder="Message" />
+  <input id="date" type="date" />
+  <input id="time" type="time" />
+  <button onclick="addMessage()">Schedule</button>
+</div>
+
+<div class="calendar" id="calendar"></div>
+
+<script>
+  let messages = [];
+
+  async function addMessage() {
+    const text = document.getElementById("message").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+
+    if (!text || !date || !time) {
+      alert("Fill everything");
+      return;
+    }
+
+    await fetch("http://localhost:3000/schedule", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text, date, time })
+    });
+
+    loadMessages();
+  }
+
+  async function loadMessages() {
+    const res = await fetch("http://localhost:3000/messages");
+    messages = await res.json();
+    render();
+  }
+
+  function getMonthInfo() {
+    const now = new Date();
+    return {
+      year: now.getFullYear(),
+      month: now.getMonth(),
+      days: new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(),
+      first: new Date(now.getFullYear(), now.getMonth(), 1).getDay()
+    };
+  }
+
+  function render() {
+    const cal = document.getElementById("calendar");
+    cal.innerHTML = "";
+
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const m = getMonthInfo();
+
+    // headers
+    days.forEach(d => {
+      const h = document.createElement("div");
+      h.className = "header";
+      h.innerText = d;
+      cal.appendChild(h);
+    });
+
+    // empty spaces
+    for (let i = 0; i < m.first; i++) {
+      const empty = document.createElement("div");
+      empty.className = "day";
+      cal.appendChild(empty);
+    }
+
+    // days
+    for (let day = 1; day <= m.days; day++) {
+      const box = document.createElement("div");
+      box.className = "day";
+
+      let html = `<div class="date-num">${day}</div>`;
+
+      messages.forEach(msg => {
+        const d = new Date(msg.timestamp);
+
+        if (d.getDate() === day) {
+          html += `
+            <div class="msg">
+              ${msg.text}
+              <div class="time">${msg.time}</div>
+            </div>
+          `;
+        }
+      });
+
+      box.innerHTML = html;
+      cal.appendChild(box);
+    }
+  }
+
+  loadMessages();
+</script>
+
+</body>
+</html>

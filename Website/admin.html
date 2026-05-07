@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f6f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      border: 2px solid #8574a3;
+      text-align: center;
+      width: 300px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    button {
+      background: #628c7b;
+      color: white;
+      padding: 10px;
+      border: none;
+      width: 95%;
+      cursor: pointer;
+    }
+
+    #msg {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Admin Login</h2>
+
+  <input id="pw" type="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+
+  <div id="msg"></div>
+</div>
+
+<script>
+async function login() {
+  const password = document.getElementById("pw").value;
+
+  const res = await fetch("http://localhost:3000/admin-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password })
+  });
+
+  if (res.ok) {
+    localStorage.setItem("admin", "true");
+    window.location.href = "dashboard.html";
+  } else {
+    document.getElementById("msg").innerText = "Wrong password";
+  }
+}
+</script>
+
+</body>
+</html>

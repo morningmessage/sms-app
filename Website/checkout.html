@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkout</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 14px;
+      width: 360px;
+      border: 2px solid #8574a3;
+    }
+
+    h2 {
+      color: #628c7b;
+    }
+
+    .info {
+      font-size: 14px;
+      margin: 10px 0;
+      color: #444;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #b2b881;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .back {
+      background: #c28da0;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Checkout</h2>
+
+  <div class="info" id="info"></div>
+
+  <button onclick="pay()">Pay Now</button>
+  <button class="back" onclick="back()">Back</button>
+</div>
+
+<script>
+const data = JSON.parse(localStorage.getItem("signup"));
+
+document.getElementById("info").innerHTML = `
+  Email: ${data.email}<br>
+  Phone: ${data.phone}<br>
+  SMS Opt-in: ${data.smsOptin}<br>
+  Email Opt-in: ${data.emailOptin}
+`;
+
+function pay() {
+  alert("This is a mock checkout. Payment integration comes next.");
+}
+
+function back() {
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

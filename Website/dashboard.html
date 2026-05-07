@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f6f6f8;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #628c7b;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #8574a3;
+    }
+
+    input {
+      padding: 5px;
+      margin: 3px;
+    }
+
+    button {
+      background: #628c7b;
+      color: white;
+      border: none;
+      padding: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<div id="list"></div>
+
+<script>
+
+async function load() {
+  const res = await fetch("http://localhost:3000/signups");
+  const data = await res.json();
+
+  document.getElementById("list").innerHTML = data.map(u => `
+    <div class="card">
+      <input value="${u.email}" id="email-${u.id}" />
+      <input value="${u.phone}" id="phone-${u.id}" />
+
+      <label>
+        SMS
+        <input type="checkbox" id="sms-${u.id}" ${u.smsOptin ? "checked" : ""}>
+      </label>
+
+      <label>
+        Email
+        <input type="checkbox" id="emailOpt-${u.id}" ${u.emailOptin ? "checked" : ""}>
+      </label>
+
+      <button onclick="save(${u.id})">Save</button>
+    </div>
+  `).join("");
+}
+
+async function save(id) {
+  const email = document.getElementById("email-" + id).value;
+  const phone = document.getElementById("phone-" + id).value;
+  const smsOptin = document.getElementById("sms-" + id).checked;
+  const emailOptin = document.getElementById("emailOpt-" + id).checked;
+
+  await fetch("http://localhost:3000/update-signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, email, phone, smsOptin, emailOptin })
+  });
+
+  alert("Saved!");
+}
+
+load();
+</script>
+
+</body>
+</html>
