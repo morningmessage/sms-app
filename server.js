@@ -164,6 +164,17 @@ setInterval(checkScheduledMessages, 60000);
 
 /* ---------------- START SERVER ---------------- */
 
+const ADMIN_PASSWORD = "1234";
+
+app.post("/admin-login", (req, res) => {
+  const { password } = req.body;
+
+  if (password === ADMIN_PASSWORD) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ success: false });
+  }
+});
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });

@@ -5,41 +5,61 @@
 
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background: #f6f6f8;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
 
     .box {
       background: white;
-      padding: 30px;
-      border-radius: 12px;
+      padding: 32px;
+      border-radius: 14px;
       border: 2px solid #8574a3;
       text-align: center;
-      width: 300px;
+      width: 320px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      color: #628c7b;
+      margin-bottom: 20px;
     }
 
     input {
-      width: 90%;
-      padding: 10px;
+      width: 92%;
+      padding: 12px;
       margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
     }
 
     button {
       background: #628c7b;
       color: white;
-      padding: 10px;
+      padding: 12px;
       border: none;
-      width: 95%;
+      width: 100%;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background: #8574a3;
     }
 
     #msg {
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 13px;
+      color: #444;
+      min-height: 18px;
     }
   </style>
 </head>
@@ -47,29 +67,63 @@
 <body>
 
 <div class="box">
+
   <h2>Admin Login</h2>
 
-  <input id="pw" type="password" placeholder="Password" />
-  <button onclick="login()">Login</button>
+  <input 
+    id="pw" 
+    type="password" 
+    placeholder="Enter admin password" 
+  />
+
+  <button onclick="login()">
+    Login
+  </button>
 
   <div id="msg"></div>
+
 </div>
 
 <script>
 async function login() {
+
   const password = document.getElementById("pw").value;
+  const msg = document.getElementById("msg");
 
-  const res = await fetch("http://localhost:3000/admin-login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password })
-  });
+  msg.innerText = "";
 
-  if (res.ok) {
-    localStorage.setItem("admin", "true");
-    window.location.href = "dashboard.html";
-  } else {
-    document.getElementById("msg").innerText = "Wrong password";
+  try {
+
+    const res = await fetch("https://sms-app-krz3.onrender.com/admin-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ password })
+    });
+
+    if (res.ok) {
+
+      localStorage.setItem("admin", "true");
+
+      msg.innerText = "Login successful!";
+
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 800);
+
+    } else {
+
+      msg.innerText = "Wrong password";
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    msg.innerText = "Could not connect to server.";
+
   }
 }
 </script>
