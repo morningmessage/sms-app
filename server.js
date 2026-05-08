@@ -7,6 +7,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("Website"));
 
 const DATA_FILE = "data.json";
 const CALENDAR_FILE = "calendar.json";
