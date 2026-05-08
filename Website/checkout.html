@@ -1,62 +1,12 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Checkout</title>
-
-  <style>
-    body {
-      font-family: Arial;
-      background: #f7f7f7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 14px;
-      width: 360px;
-      border: 2px solid #8574a3;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-    }
-
-    h2 {
-      color: #628c7b;
-      margin-bottom: 10px;
-    }
-
-    .info {
-      font-size: 14px;
-      margin: 10px 0;
-      color: #444;
-      line-height: 1.6;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
+      color: white;
       cursor: pointer;
-    }
-
-    .pay {
-      background: #b2b881;
+      font-weight: bold;
+      font-size: 14px;
     }
 
     .back {
-      background: #c28da0;
-      color: white;
-    }
-
-    .empty {
-      color: #999;
-      font-size: 13px;
+      background: #8574a3;
     }
   </style>
 </head>
@@ -64,44 +14,51 @@
 <body>
 
 <div class="card">
+
   <h2>Checkout</h2>
 
   <div class="info" id="info"></div>
 
-  <button class="pay" onclick="pay()">Pay Now</button>
-  <button class="back" onclick="back()">Back</button>
+  <button onclick="pay()">Pay Now</button>
+
+  <button class="back" onclick="back()">
+    Back
+  </button>
+
 </div>
 
 <script>
-const data = JSON.parse(localStorage.getItem("signup") || "{}");
-
 const info = document.getElementById("info");
 
-if (!data.email) {
+const saved = localStorage.getItem("signup");
+
+console.log("Loaded localStorage:", saved);
+
+if (!saved) {
 
   info.innerHTML = `
-    <div class="empty">
-      No signup data found.<br>
-      Please go back and sign up first.
-    </div>
+    No signup data found.<br><br>
+    Please go back and sign up first.
   `;
 
 } else {
 
+  const data = JSON.parse(saved);
+
   info.innerHTML = `
-    <b>Email:</b> ${data.email || "—"}<br>
-    <b>Phone:</b> ${data.phone || "—"}<br>
-    <b>SMS Opt-in:</b> ${data.smsOptin ? "Yes" : "No"}<br>
-    <b>Email Opt-in:</b> ${data.emailOptin ? "Yes" : "No"}
+    <strong>Email:</strong> ${data.email}<br>
+    <strong>Phone:</strong> ${data.phone}<br>
+    <strong>SMS Opt-in:</strong> ${data.smsOptin}<br>
+    <strong>Email Opt-in:</strong> ${data.emailOptin}
   `;
 }
 
 function pay() {
-  alert("Checkout is currently a mock. Payment integration comes next.");
+  alert("Mock payment successful.");
 }
 
 function back() {
-  window.location.href = "index.html";
+  window.location.href = "/index.html";
 }
 </script>
 
