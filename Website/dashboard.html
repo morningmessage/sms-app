@@ -23,16 +23,23 @@
     }
 
     input {
-      padding: 5px;
+      padding: 6px;
       margin: 3px;
+      width: 200px;
     }
 
     button {
       background: #628c7b;
       color: white;
       border: none;
-      padding: 6px;
+      padding: 6px 10px;
       cursor: pointer;
+      border-radius: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      margin-right: 10px;
     }
   </style>
 </head>
@@ -45,14 +52,18 @@
 
 <script>
 
+const API = "https://sms-app-krz3.onrender.com";
+
 async function load() {
-  const res = await fetch("http://localhost:3000/signups");
+
+  const res = await fetch(`${API}/users`);
   const data = await res.json();
 
   document.getElementById("list").innerHTML = data.map(u => `
     <div class="card">
-      <input value="${u.email}" id="email-${u.id}" />
-      <input value="${u.phone}" id="phone-${u.id}" />
+
+      <input value="${u.email || ""}" id="email-${u.id}" />
+      <input value="${u.phone || ""}" id="phone-${u.id}" />
 
       <label>
         SMS
@@ -65,26 +76,37 @@ async function load() {
       </label>
 
       <button onclick="save(${u.id})">Save</button>
+
     </div>
   `).join("");
+
 }
 
 async function save(id) {
+
   const email = document.getElementById("email-" + id).value;
   const phone = document.getElementById("phone-" + id).value;
   const smsOptin = document.getElementById("sms-" + id).checked;
   const emailOptin = document.getElementById("emailOpt-" + id).checked;
 
-  await fetch("http://localhost:3000/update-signup", {
+  await fetch(`${API}/users/update`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, email, phone, smsOptin, emailOptin })
+    body: JSON.stringify({
+      id,
+      email,
+      phone,
+      smsOptin,
+      emailOptin
+    })
   });
 
   alert("Saved!");
+  load();
 }
 
 load();
+
 </script>
 
 </body>

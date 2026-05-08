@@ -55,6 +55,11 @@
       background: #8574a3;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     #msg {
       margin-top: 12px;
       font-size: 13px;
@@ -76,7 +81,7 @@
     placeholder="Enter admin password" 
   />
 
-  <button onclick="login()">
+  <button id="loginBtn" onclick="login()">
     Login
   </button>
 
@@ -85,22 +90,29 @@
 </div>
 
 <script>
+const API_BASE = "https://sms-app-krz3.onrender.com";
+
 async function login() {
 
   const password = document.getElementById("pw").value;
   const msg = document.getElementById("msg");
+  const btn = document.getElementById("loginBtn");
 
   msg.innerText = "";
+  btn.disabled = true;
+  btn.innerText = "Logging in...";
 
   try {
 
-    const res = await fetch("https://sms-app-krz3.onrender.com/admin-login", {
+    const res = await fetch(`${API_BASE}/admin-login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ password })
     });
+
+    const data = await res.json().catch(() => ({}));
 
     if (res.ok) {
 
@@ -114,16 +126,18 @@ async function login() {
 
     } else {
 
-      msg.innerText = "Wrong password";
+      msg.innerText = data.message || "Wrong password";
 
     }
 
   } catch (err) {
 
     console.error(err);
-
     msg.innerText = "Could not connect to server.";
 
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Login";
   }
 }
 </script>

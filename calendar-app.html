@@ -4,7 +4,6 @@
 
   <title>Message Scheduler</title>
 
-  <!-- FullCalendar -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
   <style>
@@ -30,17 +29,14 @@
     }
 
     .editor {
-
       margin-top: 20px;
       background: white;
       padding: 20px;
       border-radius: 14px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-
     }
 
     textarea {
-
       width: 100%;
       min-height: 120px;
       padding: 12px;
@@ -51,21 +47,17 @@
       font-size: 16px;
       box-sizing: border-box;
       line-height: 1.4;
-
     }
 
     input {
-
       width: 250px;
       padding: 8px;
       margin: 10px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
-
     }
 
     button {
-
       padding: 10px 14px;
       border: none;
       border-radius: 8px;
@@ -73,7 +65,6 @@
       color: white;
       background: #628c7b;
       margin-right: 10px;
-
     }
 
     .delete {
@@ -93,49 +84,31 @@
 <h1>Message Scheduler</h1>
 
 <p>
-All messages automatically send at
-<b>6:00 AM</b>
+All messages automatically send at <b>6:00 AM</b>
 to all registered users.
 </p>
 
-<!-- CALENDAR -->
-
 <div id="calendar"></div>
-
-<!-- EDITOR -->
 
 <div class="editor">
 
   <h2>Create / Edit Message</h2>
 
-  <textarea
-    id="text"
-    placeholder="Write your message here..."
-  ></textarea>
+  <textarea id="text" placeholder="Write your message here..."></textarea>
+
+  <input id="date" type="date">
 
   <br>
 
-  <input
-    id="date"
-    type="date"
-  >
+  <button onclick="saveEvent()">Save Message</button>
 
-  <br>
-
-  <button onclick="saveEvent()">
-    Save Message
-  </button>
-
-  <button
-    class="delete"
-    onclick="deleteEvent()"
-  >
-    Delete Message
-  </button>
+  <button class="delete" onclick="deleteEvent()">Delete Message</button>
 
 </div>
 
 <script>
+
+const API = "https://sms-app-krz3.onrender.com";
 
 let calendar;
 let selectedId = null;
@@ -147,7 +120,6 @@ document.addEventListener("DOMContentLoaded", async function() {
   calendar = new FullCalendar.Calendar(calendarEl, {
 
     initialView: "dayGridMonth",
-
     height: "auto",
 
     eventClick: function(info) {
@@ -183,10 +155,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 async function loadEvents() {
 
-  const res = await fetch(
-    "http://localhost:3000/calendar"
-  );
-
+  const res = await fetch(`${API}/calendar`);
   const data = await res.json();
 
   calendar.removeAllEvents();
@@ -194,13 +163,9 @@ async function loadEvents() {
   data.forEach(event => {
 
     calendar.addEvent({
-
       id: event.id,
-
       title: event.text,
-
       start: event.date
-
     });
 
   });
@@ -209,58 +174,30 @@ async function loadEvents() {
 
 async function saveEvent() {
 
-  const text =
-    document.getElementById("text").value;
+  const text = document.getElementById("text").value;
+  const date = document.getElementById("date").value;
 
-  const date =
-    document.getElementById("date").value;
+  if (!text || !date) return;
 
-  // CREATE
   if (!selectedId) {
 
-    await fetch(
-      "http://localhost:3000/calendar",
-      {
+    await fetch(`${API}/calendar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, date })
+    });
 
-        method: "POST",
+  } else {
 
-        headers: {
-          "Content-Type":"application/json"
-        },
-
-        body: JSON.stringify({
-          text,
-          date
-        })
-
-      }
-    );
-
-  }
-
-  // UPDATE
-  else {
-
-    await fetch(
-      "http://localhost:3000/calendar/update",
-      {
-
-        method: "POST",
-
-        headers: {
-          "Content-Type":"application/json"
-        },
-
-        body: JSON.stringify({
-
-          id: selectedId,
-          text,
-          date
-
-        })
-
-      }
-    );
+    await fetch(`${API}/calendar/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: selectedId,
+        text,
+        date
+      })
+    });
 
   }
 
@@ -276,22 +213,11 @@ async function deleteEvent() {
 
   if (!selectedId) return;
 
-  await fetch(
-    "http://localhost:3000/calendar/delete",
-    {
-
-      method: "POST",
-
-      headers: {
-        "Content-Type":"application/json"
-      },
-
-      body: JSON.stringify({
-        id: selectedId
-      })
-
-    }
-  );
+  await fetch(`${API}/calendar/delete`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: selectedId })
+  });
 
   selectedId = null;
 

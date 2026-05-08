@@ -11,6 +11,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
 
     .card {
@@ -19,16 +20,19 @@
       border-radius: 14px;
       width: 360px;
       border: 2px solid #8574a3;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
     }
 
     h2 {
       color: #628c7b;
+      margin-bottom: 10px;
     }
 
     .info {
       font-size: 14px;
       margin: 10px 0;
       color: #444;
+      line-height: 1.6;
     }
 
     button {
@@ -37,14 +41,22 @@
       margin-top: 10px;
       border: none;
       border-radius: 8px;
-      background: #b2b881;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .pay {
+      background: #b2b881;
     }
 
     .back {
       background: #c28da0;
       color: white;
+    }
+
+    .empty {
+      color: #999;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -56,22 +68,36 @@
 
   <div class="info" id="info"></div>
 
-  <button onclick="pay()">Pay Now</button>
+  <button class="pay" onclick="pay()">Pay Now</button>
   <button class="back" onclick="back()">Back</button>
 </div>
 
 <script>
-const data = JSON.parse(localStorage.getItem("signup"));
+const data = JSON.parse(localStorage.getItem("signup") || "{}");
 
-document.getElementById("info").innerHTML = `
-  Email: ${data.email}<br>
-  Phone: ${data.phone}<br>
-  SMS Opt-in: ${data.smsOptin}<br>
-  Email Opt-in: ${data.emailOptin}
-`;
+const info = document.getElementById("info");
+
+if (!data.email) {
+
+  info.innerHTML = `
+    <div class="empty">
+      No signup data found.<br>
+      Please go back and sign up first.
+    </div>
+  `;
+
+} else {
+
+  info.innerHTML = `
+    <b>Email:</b> ${data.email || "—"}<br>
+    <b>Phone:</b> ${data.phone || "—"}<br>
+    <b>SMS Opt-in:</b> ${data.smsOptin ? "Yes" : "No"}<br>
+    <b>Email Opt-in:</b> ${data.emailOptin ? "Yes" : "No"}
+  `;
+}
 
 function pay() {
-  alert("This is a mock checkout. Payment integration comes next.");
+  alert("Checkout is currently a mock. Payment integration comes next.");
 }
 
 function back() {
