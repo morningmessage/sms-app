@@ -1,94 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
+<title>Dashboard</title>
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f6f6f8;
-      padding: 20px;
-      margin: 0;
-    }
+<style>
 
-    h1 {
-      color: #628c7b;
-      margin-bottom: 20px;
-    }
+body {
+font-family: Arial;
+padding: 20px;
+background: #f6f6f8;
+}
 
-    .card {
-      background: white;
-      padding: 18px;
-      margin-bottom: 16px;
-      border-radius: 12px;
-      border: 2px solid #8574a3;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
+.card {
+background: white;
+padding: 15px;
+margin: 10px 0;
+border-radius: 10px;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
+input {
+width: 100%;
+margin: 5px 0;
+padding: 8px;
+}
 
-    .row {
-      display: flex;
-      gap: 10px;
-    }
+button {
+margin-top: 5px;
+padding: 8px;
+border: none;
+cursor: pointer;
+}
 
-    .checkboxes {
-      margin-top: 10px;
-      display: flex;
-      gap: 20px;
-      font-size: 14px;
-      color: #444;
-    }
+.save { background: #628c7b; color: white; }
+.delete { background: #b04b5a; color: white; }
 
-    .buttons {
-      margin-top: 14px;
-      display: flex;
-      gap: 10px;
-    }
-
-    button {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
-      font-weight: bold;
-      transition: 0.2s ease;
-    }
-
-    .save {
-      background: #628c7b;
-    }
-
-    .save:hover {
-      background: #8574a3;
-    }
-
-    .delete {
-      background: #b04b5a;
-    }
-
-    .delete:hover {
-      opacity: 0.9;
-    }
-
-    #empty {
-      color: #666;
-      margin-top: 20px;
-    }
-
-  </style>
+</style>
 
 </head>
 
@@ -98,277 +47,59 @@
 
 <div id="list"></div>
 
-<div id="empty"></div>
-
 <script>
 
 async function load() {
 
-  try {
+const res = await fetch("https://sms-app-krz3.onrender.com/users");
+const users = await res.json();
 
-    const res = await fetch(
-      "https://sms-app-krz3.onrender.com/users"
-    );
+document.getElementById("list").innerHTML =
+users.map(u => `
+<div class="card">
 
-    const users = await res.json();
+<input id="fn-${u.id}" value="${u.firstName || ""}" />
+<input id="ln-${u.id}" value="${u.lastName || ""}" />
+<input id="em-${u.id}" value="${u.email}" />
+<input id="ph-${u.id}" value="${u.phone}" />
 
-    const list =
-      document.getElementById("list");
+<button class="save" onclick="save(${u.id})">Save</button>
+<button class="delete" onclick="del(${u.id})">Delete</button>
 
-    const empty =
-      document.getElementById("empty");
-
-    list.innerHTML = "";
-
-    if (!users.length) {
-
-      empty.innerText =
-        "No contacts yet.";
-
-      return;
-    }
-
-    empty.innerText = "";
-
-    users.forEach(user => {
-
-      list.innerHTML += `
-
-        <div class="card">
-
-          <div class="row">
-
-            <input
-              value="${user.firstName || ""}"
-              id="first-${user.id}"
-              placeholder="First name"
-            />
-
-            <input
-              value="${user.lastName || ""}"
-              id="last-${user.id}"
-              placeholder="Last name"
-            />
-
-          </div>
-
-          <input
-            value="${user.email || ""}"
-            id="email-${user.id}"
-            placeholder="Email"
-          />
-
-          <input
-            value="${user.phone || ""}"
-            id="phone-${user.id}"
-            placeholder="Phone"
-          />
-
-          <div class="checkboxes">
-
-            <label>
-              <input
-                type="checkbox"
-                id="sms-${user.id}"
-                ${user.smsOptin ? "checked" : ""}
-              />
-              SMS Opt-in
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                id="emailOpt-${user.id}"
-                ${user.emailOptin ? "checked" : ""}
-              />
-              Email Opt-in
-            </label>
-
-          </div>
-
-          <div class="buttons">
-
-            <button
-              class="save"
-              onclick="save(${user.id})"
-            >
-              Save
-            </button>
-
-            <button
-              class="delete"
-              onclick="deleteUser(${user.id})"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    });
-
-  }
-
-  catch (err) {
-
-    console.error(err);
-
-    alert("Could not load users.");
-
-  }
+</div>
+`).join("");
 
 }
-
-// SAVE USER
 
 async function save(id) {
 
-  const firstName =
-    document.getElementById(
-      "first-" + id
-    ).value.trim();
+await fetch("https://sms-app-krz3.onrender.com/users/update", {
+method: "POST",
+headers: {"Content-Type":"application/json"},
+body: JSON.stringify({
+id,
+firstName: document.getElementById("fn-"+id).value,
+lastName: document.getElementById("ln-"+id).value,
+email: document.getElementById("em-"+id).value,
+phone: document.getElementById("ph-"+id).value
+})
+});
 
-  const lastName =
-    document.getElementById(
-      "last-" + id
-    ).value.trim();
-
-  const email =
-    document.getElementById(
-      "email-" + id
-    ).value.trim();
-
-  const phone =
-    document.getElementById(
-      "phone-" + id
-    ).value.trim();
-
-  const smsOptin =
-    document.getElementById(
-      "sms-" + id
-    ).checked;
-
-  const emailOptin =
-    document.getElementById(
-      "emailOpt-" + id
-    ).checked;
-
-  if (
-    !firstName ||
-    !lastName ||
-    !email ||
-    !phone
-  ) {
-
-    alert(
-      "All fields are required."
-    );
-
-    return;
-  }
-
-  try {
-
-    const res = await fetch(
-      "https://sms-app-krz3.onrender.com/users/update",
-      {
-
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body: JSON.stringify({
-
-          id,
-          firstName,
-          lastName,
-          email,
-          phone,
-          smsOptin,
-          emailOptin
-
-        })
-
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-
-      alert(
-        data.message ||
-        "Save failed."
-      );
-
-      return;
-    }
-
-    alert("Saved!");
-
-    load();
-
-  }
-
-  catch (err) {
-
-    console.error(err);
-
-    alert("Could not save user.");
-
-  }
+alert("Saved");
 
 }
 
-// DELETE USER
+async function del(id) {
 
-async function deleteUser(id) {
+await fetch("https://sms-app-krz3.onrender.com/users/delete", {
+method: "POST",
+headers: {"Content-Type":"application/json"},
+body: JSON.stringify({id})
+});
 
-  const confirmed = confirm(
-    "Delete this contact?"
-  );
-
-  if (!confirmed) return;
-
-  try {
-
-    await fetch(
-      "https://sms-app-krz3.onrender.com/users/delete",
-      {
-
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body: JSON.stringify({ id })
-
-      }
-    );
-
-    load();
-
-  }
-
-  catch (err) {
-
-    console.error(err);
-
-    alert("Could not delete user.");
-
-  }
+load();
 
 }
-
-// INITIAL LOAD
 
 load();
 
