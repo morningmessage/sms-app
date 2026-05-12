@@ -14,7 +14,8 @@ app.use(express.static("Website"));
 const DATA_FILE = "data.json";
 const CALENDAR_FILE = "calendar.json";
 
-const ADMIN_PASSWORD = "1234";
+const ADMIN_PASSWORD =
+  process.env.ADMIN_PASSWORD;
 
 /* ---------------- HELPERS ---------------- */
 
