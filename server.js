@@ -7,21 +7,68 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// SERVE WEBSITE FILES
 app.use(express.static("Website"));
 
 const DATA_FILE = "data.json";
 const CALENDAR_FILE = "calendar.json";
 
+const ADMIN_PASSWORD = "1234";
+
 /* ---------------- HELPERS ---------------- */
 
 function load(file) {
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file));
+
+  if (!fs.existsSync(file)) {
+    return [];
+  }
+
+  return JSON.parse(
+    fs.readFileSync(file)
+  );
 }
 
 function save(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+
+  fs.writeFileSync(
+    file,
+    JSON.stringify(data, null, 2)
+  );
 }
+
+/* ---------------- HOME ---------------- */
+
+app.get("/", (req, res) => {
+
+  res.sendFile(
+    __dirname + "/Website/index.html"
+  );
+
+});
+
+/* ---------------- ADMIN LOGIN ---------------- */
+
+app.post("/admin-login", (req, res) => {
+
+  const { password } = req.body;
+
+  if (password === ADMIN_PASSWORD) {
+
+    res.json({
+      success: true
+    });
+
+  } else {
+
+    res.status(401).json({
+      success: false,
+      message: "Wrong password"
+    });
+
+  }
+
+});
 
 /* ---------------- SIGNUP ---------------- */
 
@@ -29,92 +76,322 @@ app.post("/signup", (req, res) => {
 
   const users = load(DATA_FILE);
 
-  const { email, phone, smsOptin, emailOptin, timezone } = req.body;
+  const {
 
-  if (!email || !phone) {
-    return res.status(400).json({ error: "Missing fields" });
-  }
-
-  users.push({
-    id: Date.now(),
+    firstName,
+    lastName,
     email,
     phone,
-    smsOptin: !!smsOptin,
-    emailOptin: !!emailOptin,
-    timezone: timezone || "America/Los_Angeles"
-  });
+    smsOptin,
+    emailOptin,
+    timezone
+
+  } = req.body;
+
+  // REQUIRED FIELDS
+
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phone
+  ) {
+
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required."
+    });
+
+  }
+
+  // DUPLICATE EMAIL
+
+  const existingEmail = users.find(
+    u =>
+      u.email &&
+      u.email.toLowerCase() ===
+      email.toLowerCase()
+  );
+
+  if (existingEmail) {
+
+    return res.status(400).json({
+      success: false,
+      message: "Email already exists."
+    });
+
+  }
+
+  // DUPLICATE PHONE
+
+  const existingPhone = users.find(
+    u => u.phone === phone
+  );
+
+  if (existingPhone) {
+
+    return res.status(400).json({
+      success: false,
+      message: "Phone number already exists."
+    });
+
+  }
+
+  // CREATE USER
+
+  const newUser = {
+
+    id: Date.now(),
+
+    firstName,
+    lastName,
+
+    email,
+    phone,
+
+    smsOptin,
+    emailOptin,
+
+    timezone:
+      timezone ||
+      "America/Los_Angeles",
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+  users.push(newUser);
 
   save(DATA_FILE, users);
 
-  res.json({ success: true });
+  res.json({
+    success: true
+  });
+
 });
 
-/* ---------------- USERS ---------------- */
+/* ---------------- GET USERS ---------------- */
 
 app.get("/users", (req, res) => {
-  res.json(load(DATA_FILE));
+
+  const users = load(DATA_FILE);
+
+  res.json(users);
+
 });
+
+/* ---------------- UPDATE USER ---------------- */
 
 app.post("/users/update", (req, res) => {
 
   const users = load(DATA_FILE);
 
-  const { id, email, phone, smsOptin, emailOptin } = req.body;
+  const {
 
-  const updated = users.map(u =>
-    u.id === id
-      ? { ...u, email, phone, smsOptin, emailOptin }
-      : u
+    id,
+    firstName,
+    lastName,
+    email,
+    phone,
+    smsOptin,
+    emailOptin
+
+  } = req.body;
+
+  // REQUIRED
+
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phone
+  ) {
+
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required."
+    });
+
+  }
+
+  // CHECK DUPLICATE EMAIL
+
+  const duplicateEmail = users.find(
+    u =>
+      u.id !== id &&
+      u.email &&
+      u.email.toLowerCase() ===
+      email.toLowerCase()
+  );
+
+  if (duplicateEmail) {
+
+    return res.status(400).json({
+      success: false,
+      message: "Email already in use."
+    });
+
+  }
+
+  // CHECK DUPLICATE PHONE
+
+  const duplicatePhone = users.find(
+    u =>
+      u.id !== id &&
+      u.phone === phone
+  );
+
+  if (duplicatePhone) {
+
+    return res.status(400).json({
+      success: false,
+      message: "Phone already in use."
+    });
+
+  }
+
+  // UPDATE USER
+
+  const updated = users.map(user =>
+
+    user.id === id
+
+      ? {
+
+          ...user,
+
+          firstName,
+          lastName,
+
+          email,
+          phone,
+
+          smsOptin,
+          emailOptin
+
+        }
+
+      : user
+
   );
 
   save(DATA_FILE, updated);
 
-  res.json({ success: true });
+  res.json({
+    success: true
+  });
+
 });
 
-/* ---------------- CALENDAR ---------------- */
+/* ---------------- DELETE USER ---------------- */
+
+app.post("/users/delete", (req, res) => {
+
+  const users = load(DATA_FILE);
+
+  const { id } = req.body;
+
+  const filtered = users.filter(
+    user => user.id !== id
+  );
+
+  save(DATA_FILE, filtered);
+
+  res.json({
+    success: true
+  });
+
+});
+
+/* ---------------- GET CALENDAR EVENTS ---------------- */
 
 app.get("/calendar", (req, res) => {
-  res.json(load(CALENDAR_FILE));
+
+  const events = load(CALENDAR_FILE);
+
+  res.json(events);
+
 });
+
+/* ---------------- CREATE EVENT ---------------- */
 
 app.post("/calendar", (req, res) => {
 
   const events = load(CALENDAR_FILE);
 
-  const { text, date } = req.body;
+  const {
+
+    text,
+    date
+
+  } = req.body;
 
   if (!text || !date) {
-    return res.status(400).json({ error: "Missing fields" });
+
+    return res.status(400).json({
+      success: false,
+      message: "Text and date required."
+    });
+
   }
 
   events.push({
+
     id: Date.now(),
+
     text,
     date,
-    sentUsers: [],
-    lastSentHour: null
+
+    sentUsers: []
+
   });
 
   save(CALENDAR_FILE, events);
 
-  res.json({ success: true });
+  res.json({
+    success: true
+  });
+
 });
+
+/* ---------------- UPDATE EVENT ---------------- */
 
 app.post("/calendar/update", (req, res) => {
 
   const events = load(CALENDAR_FILE);
 
-  const { id, text, date } = req.body;
+  const {
 
-  const updated = events.map(e =>
-    e.id === id ? { ...e, text, date } : e
+    id,
+    text,
+    date
+
+  } = req.body;
+
+  const updated = events.map(event =>
+
+    event.id === id
+
+      ? {
+          ...event,
+          text,
+          date
+        }
+
+      : event
+
   );
 
   save(CALENDAR_FILE, updated);
 
-  res.json({ success: true });
+  res.json({
+    success: true
+  });
+
 });
+
+/* ---------------- DELETE EVENT ---------------- */
 
 app.post("/calendar/delete", (req, res) => {
 
@@ -122,26 +399,16 @@ app.post("/calendar/delete", (req, res) => {
 
   const { id } = req.body;
 
-  const filtered = events.filter(e => e.id !== id);
+  const filtered = events.filter(
+    event => event.id !== id
+  );
 
   save(CALENDAR_FILE, filtered);
 
-  res.json({ success: true });
-});
+  res.json({
+    success: true
+  });
 
-/* ---------------- ADMIN ---------------- */
-
-const ADMIN_PASSWORD = "1234";
-
-app.post("/admin-login", (req, res) => {
-
-  const { password } = req.body;
-
-  if (password === ADMIN_PASSWORD) {
-    return res.json({ success: true });
-  }
-
-  res.status(401).json({ success: false });
 });
 
 /* ---------------- AUTOMATION ENGINE ---------------- */
@@ -149,6 +416,7 @@ app.post("/admin-login", (req, res) => {
 function checkScheduledMessages() {
 
   const users = load(DATA_FILE);
+
   const events = load(CALENDAR_FILE);
 
   const nowUTC = DateTime.utc();
@@ -157,56 +425,85 @@ function checkScheduledMessages() {
 
   events.forEach(event => {
 
-    const sentKey = event.lastSentHour;
-
     users.forEach(user => {
 
-      if (!user.smsOptin || !user.phone) return;
+      if (!user.smsOptin) return;
 
-      const userNow = nowUTC.setZone(user.timezone);
+      if (!user.phone) return;
 
-      const hourKey = userNow.toFormat("yyyy-MM-dd-HH");
+      if (!event.sentUsers) {
+        event.sentUsers = [];
+      }
 
-      const is6AM = userNow.hour === 6;
+      if (
+        event.sentUsers.includes(
+          user.phone
+        )
+      ) return;
 
-      // prevent duplicate sending within same hour block
-      if (event.sentUsers.includes(user.phone)) return;
-      if (!is6AM) return;
+      const userNow =
+        nowUTC.setZone(
+          user.timezone
+        );
 
-      if (event.lastSentHour === hourKey) return;
+      const is6AM =
+        userNow.hour === 6;
 
-      console.log("📨 SENDING MESSAGE");
-      console.log("To:", user.phone);
-      console.log("Message:", event.text);
+      if (is6AM) {
 
-      event.sentUsers.push(user.phone);
-      event.lastSentHour = hourKey;
+        console.log(
+          "📨 SENDING MESSAGE"
+        );
 
-      changed = true;
+        console.log(
+          "To:",
+          user.phone
+        );
+
+        console.log(
+          "Message:",
+          event.text
+        );
+
+        event.sentUsers.push(
+          user.phone
+        );
+
+        changed = true;
+
+      }
 
     });
 
   });
 
   if (changed) {
-    save(CALENDAR_FILE, events);
+
+    save(
+      CALENDAR_FILE,
+      events
+    );
+
   }
+
 }
 
-/* ---------------- RUN LOOP ---------------- */
+/* ---------------- RUN EVERY MINUTE ---------------- */
 
-setInterval(checkScheduledMessages, 60000);
+setInterval(
+  checkScheduledMessages,
+  60000
+);
 
-/* ---------------- SERVER ---------------- */
+/* ---------------- START SERVER ---------------- */
 
-const PORT = 3000;
+const PORT =
+  process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 
-/* ---------------- HEALTH ---------------- */
+  console.log(
+    `Server running on port ${PORT}`
+  );
 
-app.get("/", (req, res) => {
-  res.send("SMS App is live 🚀");
 });

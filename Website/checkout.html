@@ -1,65 +1,357 @@
 <!DOCTYPE html>
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
+<html>
+<head>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Checkout</title>
+
+  <style>
+
+    :root {
+      --green: #628c7b;
+      --purple: #8574a3;
+      --bg: #f6f6f8;
+      --text: #2b2b2b;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .card {
+
+      width: 100%;
+      max-width: 420px;
+
+      background: white;
+
+      padding: 30px;
+
+      border-radius: 16px;
+
+      border: 2px solid var(--purple);
+
+      box-shadow:
+        0 4px 18px rgba(0,0,0,0.08);
+
+      box-sizing: border-box;
+
+    }
+
+    h1 {
+
+      margin-top: 0;
+
+      color: var(--green);
+
+      text-align: center;
+
+    }
+
+    p {
+
+      color: #666;
+
+      text-align: center;
+
+      margin-bottom: 24px;
+
+    }
+
+    .section {
+
+      margin-bottom: 18px;
+
+      padding: 14px;
+
+      background: #fafafa;
+
+      border-radius: 10px;
+
+      border: 1px solid #eee;
+
+    }
+
+    .label {
+
+      font-size: 12px;
+
+      color: #777;
+
+      margin-bottom: 4px;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.5px;
+
+    }
+
+    .value {
+
+      color: var(--text);
+
+      font-size: 15px;
+
+      word-break: break-word;
+
+    }
+
+    .optin {
+
+      margin-top: 10px;
+
       font-size: 14px;
+
+      color: #444;
+
+    }
+
+    button {
+
+      width: 100%;
+
+      padding: 14px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      font-weight: bold;
+
+      font-size: 15px;
+
+      cursor: pointer;
+
+      transition: 0.2s ease;
+
+      margin-top: 12px;
+
+    }
+
+    .pay {
+
+      background: var(--green);
+
+      color: white;
+
+    }
+
+    .pay:hover {
+
+      background: var(--purple);
+
     }
 
     .back {
-      background: #8574a3;
+
+      background: #ddd;
+
+      color: #333;
+
     }
+
+    .back:hover {
+
+      background: #cfcfcf;
+
+    }
+
+    #msg {
+
+      margin-top: 16px;
+
+      text-align: center;
+
+      color: var(--text);
+
+      min-height: 20px;
+
+      font-size: 14px;
+
+    }
+
   </style>
+
 </head>
 
 <body>
 
 <div class="card">
 
-  <h2>Checkout</h2>
+  <h1>Checkout</h1>
 
-  <div class="info" id="info"></div>
+  <p>
+    Review your signup details below.
+  </p>
 
-  <button onclick="pay()">Pay Now</button>
+  <div id="content"></div>
 
-  <button class="back" onclick="back()">
+  <button
+    class="pay"
+    onclick="pay()"
+  >
+    Complete Signup
+  </button>
+
+  <button
+    class="back"
+    onclick="goBack()"
+  >
     Back
   </button>
+
+  <div id="msg"></div>
 
 </div>
 
 <script>
-const info = document.getElementById("info");
 
-const saved = localStorage.getItem("signup");
+const signupData =
+  JSON.parse(
+    localStorage.getItem("signup")
+  );
 
-console.log("Loaded localStorage:", saved);
+const content =
+  document.getElementById("content");
 
-if (!saved) {
+const msg =
+  document.getElementById("msg");
 
-  info.innerHTML = `
-    No signup data found.<br><br>
-    Please go back and sign up first.
+// NO DATA
+
+if (!signupData) {
+
+  content.innerHTML = `
+
+    <div class="section">
+
+      <div class="value">
+        No signup data found.
+      </div>
+
+    </div>
+
   `;
 
 } else {
 
-  const data = JSON.parse(saved);
+  content.innerHTML = `
 
-  info.innerHTML = `
-    <strong>Email:</strong> ${data.email}<br>
-    <strong>Phone:</strong> ${data.phone}<br>
-    <strong>SMS Opt-in:</strong> ${data.smsOptin}<br>
-    <strong>Email Opt-in:</strong> ${data.emailOptin}
+    <div class="section">
+
+      <div class="label">
+        First Name
+      </div>
+
+      <div class="value">
+        ${signupData.firstName}
+      </div>
+
+    </div>
+
+    <div class="section">
+
+      <div class="label">
+        Last Name
+      </div>
+
+      <div class="value">
+        ${signupData.lastName}
+      </div>
+
+    </div>
+
+    <div class="section">
+
+      <div class="label">
+        Email
+      </div>
+
+      <div class="value">
+        ${signupData.email}
+      </div>
+
+    </div>
+
+    <div class="section">
+
+      <div class="label">
+        Phone
+      </div>
+
+      <div class="value">
+        ${signupData.phone}
+      </div>
+
+    </div>
+
+    <div class="section">
+
+      <div class="label">
+        Preferences
+      </div>
+
+      <div class="optin">
+        SMS:
+        ${signupData.smsOptin ? "Yes" : "No"}
+      </div>
+
+      <div class="optin">
+        Email:
+        ${signupData.emailOptin ? "Yes" : "No"}
+      </div>
+
+    </div>
+
   `;
+
 }
+
+// COMPLETE SIGNUP
 
 function pay() {
-  alert("Mock payment successful.");
+
+  if (!signupData) {
+
+    msg.innerText =
+      "Please go back and sign up first.";
+
+    return;
+
+  }
+
+  msg.innerText =
+    "Signup complete!";
+
+  setTimeout(() => {
+
+    window.location.href =
+      "/success.html";
+
+  }, 1000);
+
 }
 
-function back() {
-  window.location.href = "/index.html";
+// GO BACK
+
+function goBack() {
+
+  window.location.href =
+    "/";
+
 }
+
 </script>
 
 </body>
