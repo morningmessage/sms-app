@@ -1,0 +1,78 @@
+<style>
+
+:root {
+  --green: #628c7b;
+  --purple: #8574a3;
+  --bg: #f6f6f8;
+  --text: #2b2b2b;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 32px;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  border: 2px solid var(--purple);
+}
+
+h1 { color: var(--green); }
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.phone-row {
+  display: flex;
+  gap: 8px;
+}
+
+.phone-row select {
+  width: 120px;
+}
+
+.phone-row input {
+  flex: 1;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--green);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#msg {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+</style>
