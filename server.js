@@ -1,4 +1,3 @@
-```javascript
 require("dotenv").config();
 
 const express = require("express");
@@ -21,7 +20,7 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
-// Local JSON file (temporary for dashboard/admin routes)
+// Local backup file
 const DATA_FILE = "data.json";
 
 // Helpers
@@ -39,8 +38,9 @@ app.get("/", (req, res) => {
   res.send("SMS App live 🚀");
 });
 
-// SIGNUP ROUTE (Supabase)
+// Signup route
 app.post("/signup", async (req, res) => {
+
   try {
 
     const {
@@ -60,17 +60,24 @@ app.post("/signup", async (req, res) => {
       });
     }
 
-    // Duplicate check
-    const { data: existingUsers, error: existingError } = await supabase
-      .from("users")
-      .select("*")
-      .or(`email.eq.${email},phone.eq.${phone}`);
+    // Get all existing users
+    const { data: existingUsers, error: existingError } =
+      await supabase
+        .from("users")
+        .select("*");
 
     if (existingError) {
       throw existingError;
     }
 
-    if (existingUsers.length > 0) {
+    // Check duplicates
+    const duplicateUser = existingUsers.find(
+      user =>
+        user.email === email ||
+        user.phone === phone
+    );
+
+    if (duplicateUser) {
       return res.status(400).json({
         success: false,
         message: "Email or phone already exists"
@@ -84,8 +91,8 @@ app.post("/signup", async (req, res) => {
         {
           first_name: firstName,
           last_name: lastName,
-          email,
-          phone,
+          email: email,
+          phone: phone,
           sms_opt_in: smsOptin,
           email_opt_in: emailOptin
         }
@@ -124,9 +131,10 @@ app.post("/signup", async (req, res) => {
     });
 
   }
+
 });
 
-// Get users (temporary local JSON)
+// Get users
 app.get("/users", (req, res) => {
   res.json(load(DATA_FILE));
 });
@@ -136,15 +144,17 @@ app.post("/users/update", (req, res) => {
 
   const users = load(DATA_FILE);
 
-  const updated = users.map(u =>
-    u.id === req.body.id
-      ? { ...u, ...req.body }
-      : u
+  const updated = users.map(user =>
+    user.id === req.body.id
+      ? { ...user, ...req.body }
+      : user
   );
 
   save(DATA_FILE, updated);
 
-  res.json({ success: true });
+  res.json({
+    success: true
+  });
 
 });
 
@@ -154,12 +164,14 @@ app.post("/users/delete", (req, res) => {
   const users = load(DATA_FILE);
 
   const filtered = users.filter(
-    u => u.id !== req.body.id
+    user => user.id !== req.body.id
   );
 
   save(DATA_FILE, filtered);
 
-  res.json({ success: true });
+  res.json({
+    success: true
+  });
 
 });
 
@@ -167,7 +179,9 @@ app.post("/users/delete", (req, res) => {
 app.post("/admin-login", (req, res) => {
 
   if (req.body.password === ADMIN_PASSWORD) {
-    return res.json({ success: true });
+    return res.json({
+      success: true
+    });
   }
 
   res.status(401).json({
@@ -180,4 +194,3 @@ app.post("/admin-login", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Running on ${PORT}`);
 });
-```
