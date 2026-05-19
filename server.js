@@ -51,7 +51,7 @@ app.post("/signup", async (req, res) => {
 
    const email = (req.body.Email || "").trim().toLowerCase();
 
-   const phone = (req.body["Full Phone Number"] || "") .replace(/\s/g, "");
+   const phone = (req.body["Full Phone Number"] || "") .replace(/[^\d+]/g, "");
 
     const smsOptin = true;
     const emailOptin = true;
