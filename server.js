@@ -90,22 +90,31 @@ app.post("/signup", async (req, res) => {
     }
 
     // Insert into Supabase
-    const { error } = await supabase
-      .from("users")
-      .insert([
-        {
-          first_name: firstName,
-          last_name: lastName,
-          email: email,
-          phone: phone,
-          sms_opt_in: smsOptin,
-          email_opt_in: emailOptin
-        }
-      ]);
-
-    if (error) {
-      throw error;
+const { error } = await supabase
+  .from("users")
+  .insert([
+    {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone: phone,
+      sms_opt_in: smsOptin,
+      email_opt_in: emailOptin
     }
+  ]);
+
+if (error) {
+  console.log("SUPABASE ERROR:", error);
+
+  if (error.code === "23505") {
+    return res.status(400).json({
+      success: false,
+      message: "Email or phone already in use"
+    });
+  }
+
+  throw error;
+}
 
     // Local backup
     const users = load(DATA_FILE);
