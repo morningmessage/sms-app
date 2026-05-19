@@ -49,12 +49,13 @@ app.post("/signup", async (req, res) => {
     const firstName = req.body.Name?.[0]?.trim() || "";
     const lastName = req.body.Name?.[1]?.trim() || "";
 
-    const email = req.body.Email || "";
+   const email = (req.body.Email || "").trim().toLowerCase();
 
-    const phone = req.body["Full Phone Number"] || "";
+   const phone = (req.body["Full Phone Number"] || "") .replace(/\s/g, "");
 
     const smsOptin = true;
     const emailOptin = true;
+    if (!email.includes("@")) { return res.status(400).json({ success: false, message: "Invalid email" }); }
 
     // Validation
     if (!firstName || !lastName || !email || !phone) {
