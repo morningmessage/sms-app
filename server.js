@@ -14,13 +14,13 @@ const PORT = process.env.PORT || 3000;
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-// Supabase setup
+// Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// Local backup file
+// Local backup
 const DATA_FILE = "data.json";
 
 // Helpers
@@ -33,7 +33,7 @@ function save(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
-// Home route
+// Home
 app.get("/", (req, res) => {
   res.send("SMS App live 🚀");
 });
@@ -41,18 +41,20 @@ app.get("/", (req, res) => {
 // Signup route
 app.post("/signup", async (req, res) => {
 
-console.log(req.body);
+  console.log(req.body);
 
   try {
 
-    const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      smsOptin,
-      emailOptin
-    } = req.body;
+    // Framer field mapping
+    const firstName = req.body.Name?.[0]?.trim() || "";
+    const lastName = req.body.Name?.[1]?.trim() || "";
+
+    const email = req.body.Email || "";
+
+    const phone = req.body["Full Phone Number"] || "";
+
+    const smsOptin = true;
+    const emailOptin = true;
 
     // Validation
     if (!firstName || !lastName || !email || !phone) {
@@ -62,7 +64,7 @@ console.log(req.body);
       });
     }
 
-    // Get all existing users
+    // Existing users
     const { data: existingUsers, error: existingError } =
       await supabase
         .from("users")
@@ -72,7 +74,7 @@ console.log(req.body);
       throw existingError;
     }
 
-    // Check duplicates
+    // Duplicate check
     const duplicateUser = existingUsers.find(
       user =>
         user.email === email ||
@@ -104,7 +106,7 @@ console.log(req.body);
       throw error;
     }
 
-    // Optional local backup
+    // Local backup
     const users = load(DATA_FILE);
 
     users.push({
