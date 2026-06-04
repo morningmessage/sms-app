@@ -37,6 +37,34 @@ function save(file, data) {
 app.get("/", (req, res) => {
   res.send("SMS App live 🚀");
 });
+app.get("/test-auth", async (req, res) => {
+
+  try {
+
+    const { data, error } =
+      await supabase.auth.admin.createUser({
+        email: "testauth@morningmessage.com",
+        email_confirm: false
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    res.json(data);
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+
+  }
+
+});
 
 // Signup route
 app.post("/signup", async (req, res) => {
