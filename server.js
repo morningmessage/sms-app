@@ -41,7 +41,7 @@ app.get("/", (req, res) => {
 // Signup route
 app.post("/signup", async (req, res) => {
 
-  console.log(req.body);
+  console.log("New signup:", new Date().toISOString());
 
   try {
 
