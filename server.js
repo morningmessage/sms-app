@@ -53,8 +53,9 @@ app.post("/signup", async (req, res) => {
 
    const phone = (req.body["Full Phone Number"] || "") .replace(/[^\d+]/g, "");
 
-    const smsOptin = true;
-    const emailOptin = true;
+    const smsOptin = req.body.sms_opt_in === "on";
+    const emailOptin = req.body.email_opt_in === "on";
+    const privacyAccepted = req.body.privacy_accepted === "on";
     if (!email.includes("@")) { return res.status(400).json({ success: false, message: "Invalid email" }); }
 
     // Validation
@@ -99,7 +100,8 @@ const { error } = await supabase
       email: email,
       phone: phone,
       sms_opt_in: smsOptin,
-      email_opt_in: emailOptin
+      email_opt_in: emailOptin,
+      privacy_accepted: privacyAccepted
     }
   ]);
 
@@ -120,14 +122,15 @@ if (error) {
     const users = load(DATA_FILE);
 
     users.push({
-      id: Date.now(),
-      firstName,
-      lastName,
-      email,
-      phone,
-      smsOptin,
-      emailOptin
-    });
+  id: Date.now(),
+  firstName,
+  lastName,
+  email,
+  phone,
+  smsOptin,
+  emailOptin,
+  privacyAccepted
+});
 
     save(DATA_FILE, users);
 
