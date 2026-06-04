@@ -48,7 +48,7 @@ app.get("/test-auth", async (req, res) => {
 
     const { data, error } =
       await supabaseAdmin.auth.admin.createUser({
-        email: "testauth@morningmessage.com",
+        email: "test2@morningmessage.com",
         email_confirm: false
       });
 
