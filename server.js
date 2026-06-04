@@ -20,6 +20,11 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SECRET_KEY
+);
+
 // Local backup
 const DATA_FILE = "data.json";
 
@@ -42,7 +47,7 @@ app.get("/test-auth", async (req, res) => {
   try {
 
     const { data, error } =
-      await supabase.auth.admin.createUser({
+      await supabaseAdmin.auth.admin.createUser({
         email: "testauth@morningmessage.com",
         email_confirm: false
       });
