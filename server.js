@@ -48,7 +48,7 @@ app.get("/test-auth", async (req, res) => {
 
     const { data, error } =
       await supabaseAdmin.auth.admin.createUser({
-        email: "test2@morningmessage.com",
+        email: `test${Date.now()}@morningmessage.com`,
         email_confirm: false
       });
 
@@ -128,13 +128,14 @@ const { error } = await supabase
   .from("users")
   .insert([
     {
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      phone: phone,
-      sms_opt_in: smsOptin,
-      email_opt_in: emailOptin,
-      privacy_accepted: privacyAccepted
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone,
+        sms_opt_in: smsOptin,
+        email_opt_in: emailOptin,
+        privacy_accepted: privacyAccepted,
+        signup_source: "website"
     }
   ]);
 
