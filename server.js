@@ -57,7 +57,7 @@ app.get("/test-auth", async (req, res) => {
     }
 
     console.log("AUTH UID:", data.user.id);
-    
+
     res.json(data);
 
   } catch (err) {
@@ -124,6 +124,28 @@ app.post("/signup", async (req, res) => {
         message: "Email or phone already exists"
       });
     }
+
+    // Create Auth User
+const { data: authData, error: authError } =
+  await supabaseAdmin.auth.admin.createUser({
+    email: email,
+    email_confirm: false
+  });
+
+if (authError) {
+
+  console.log("AUTH ERROR:", authError);
+
+  return res.status(400).json({
+    success: false,
+    message: authError.message
+  });
+
+}
+
+const authUid = authData.user.id;
+
+console.log("NEW AUTH UID:", authUid);
 
     // Insert into Supabase
 const { error } = await supabase
