@@ -156,6 +156,7 @@ const { error } = await supabase
         last_name: lastName,
         email: email,
         phone: phone,
+        auth_uid: authUid,
         sms_opt_in: smsOptin,
         email_opt_in: emailOptin,
         privacy_accepted: privacyAccepted,
