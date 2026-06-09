@@ -73,6 +73,40 @@ app.get("/test-auth", async (req, res) => {
 
 });
 
+app.get("/test-invite", async (req, res) => {
+
+  try {
+
+    const email = `invite${Date.now()}@example.com`;
+
+    const { data, error } =
+      await supabaseAdmin.auth.admin.inviteUserByEmail(
+        email
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    res.json({
+      success: true,
+      email,
+      data
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+
+  }
+
+});
+
 // Signup route
 app.post("/signup", async (req, res) => {
 
