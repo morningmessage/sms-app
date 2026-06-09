@@ -56,6 +56,8 @@ app.get("/test-auth", async (req, res) => {
       throw error;
     }
 
+    console.log("AUTH UID:", data.user.id);
+    
     res.json(data);
 
   } catch (err) {
