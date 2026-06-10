@@ -164,7 +164,11 @@ app.post("/signup", async (req, res) => {
    // Create Auth User + Send Invite Email
 const { data: authData, error: authError } =
   await supabaseAdmin.auth.admin.inviteUserByEmail(
-    email
+    email,
+    {
+      redirectTo:
+        "https://morningmessage.net/dashboard"
+    }
   );
 
 if (authError) {
