@@ -77,7 +77,7 @@ app.get("/test-invite", async (req, res) => {
 
   try {
 
-    const email = "sarahrdazzle@gmail.com";
+    const email = "nqcnovick@gmail.com";
 
     const { data, error } =
       await supabaseAdmin.auth.admin.inviteUserByEmail(
