@@ -88,11 +88,13 @@ app.get("/test-invite", async (req, res) => {
       throw error;
     }
 
-    res.json({
-      success: true,
-      email,
-      data
-    });
+    console.log("INVITE DATA:", data);
+
+res.json({
+  success: true,
+  email,
+  data
+});
 
   } catch (err) {
 
