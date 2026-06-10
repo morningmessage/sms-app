@@ -308,9 +308,14 @@ app.post("/login", async (req, res) => {
   try {
 
     const email =
-      (req.body.Email || "")
-        .trim()
-        .toLowerCase();
+  (
+    req.body.Email ||
+    req.body.email ||
+    req.body.Name ||
+    ""
+  )
+    .trim()
+    .toLowerCase();
 
     const { error } =
       await supabase.auth.signInWithOtp({
