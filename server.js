@@ -303,6 +303,8 @@ app.post("/admin-login", (req, res) => {
 
 app.post("/login", async (req, res) => {
 
+  console.log("LOGIN BODY:", req.body);
+
   try {
 
     const email =
