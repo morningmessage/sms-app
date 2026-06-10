@@ -301,10 +301,6 @@ app.post("/admin-login", (req, res) => {
 
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Running on ${PORT}`);
-});
 app.post("/login", async (req, res) => {
 
   try {
@@ -316,7 +312,7 @@ app.post("/login", async (req, res) => {
 
     const { error } =
       await supabase.auth.signInWithOtp({
-        email: email,
+        email,
         options: {
           emailRedirectTo:
             "https://morningmessage.net/dashboard"
@@ -342,4 +338,9 @@ app.post("/login", async (req, res) => {
 
   }
 
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Running on ${PORT}`);
 });
