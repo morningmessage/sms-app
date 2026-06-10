@@ -305,3 +305,41 @@ app.post("/admin-login", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Running on ${PORT}`);
 });
+app.post("/login", async (req, res) => {
+
+  try {
+
+    const email =
+      (req.body.Email || "")
+        .trim()
+        .toLowerCase();
+
+    const { error } =
+      await supabase.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo:
+            "https://morningmessage.net/dashboard"
+        }
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    res.json({
+      success: true
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(400).json({
+      success: false,
+      message: err.message
+    });
+
+  }
+
+});
