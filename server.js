@@ -161,12 +161,11 @@ app.post("/signup", async (req, res) => {
       });
     }
 
-    // Create Auth User
+   // Create Auth User + Send Invite Email
 const { data: authData, error: authError } =
-  await supabaseAdmin.auth.admin.createUser({
-    email: email,
-    email_confirm: false
-  });
+  await supabaseAdmin.auth.admin.inviteUserByEmail(
+    email
+  );
 
 if (authError) {
 
