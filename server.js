@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const { createClient } = require("@supabase/supabase-js");
+const Stripe = require("stripe");
 
 const app = express();
 
@@ -23,6 +24,10 @@ const supabase = createClient(
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SECRET_KEY
+);
+
+const stripe = Stripe(
+  process.env.STRIPE_SECRET_KEY
 );
 
 // Local backup
@@ -343,6 +348,50 @@ app.post("/login", async (req, res) => {
     console.error(err);
 
     res.status(400).json({
+      success: false,
+      message: err.message
+    });
+
+  }
+
+});
+
+app.post("/create-checkout-session", async (req, res) => {
+
+  try {
+
+    const priceId = req.body.priceId;
+
+    const session =
+      await stripe.checkout.sessions.create({
+
+        mode: "subscription",
+
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1
+          }
+        ],
+
+        success_url:
+          "https://morningmessage.net/dashboard",
+
+        cancel_url:
+          "https://morningmessage.net"
+
+      });
+
+    res.json({
+      success: true,
+      url: session.url
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
       success: false,
       message: err.message
     });
